@@ -21,7 +21,7 @@ app.route('/retrievePrice/:token/:timePeriodInSeconds/:startTime/:endTime')
     var periodStartTime = startTime - (startTime % period)
     var periodEndTime = endTime - (endTime % period) + period - 1
 
-    const query = "SELECT * FROM " + token + "_? WHERE startTime BETWEEN ? and ?"
+    const query = "SELECT * FROM " + req.params.token + "_? WHERE startTime BETWEEN ? and ?"
     pool.query(query, [ period, periodStartTime, periodEndTime ], (error, results) => {
       if (error) throw error;
       if (!results[0]) {
