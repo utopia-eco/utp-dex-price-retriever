@@ -30,7 +30,7 @@ jobs:
     - uses: google-github-actions/setup-gcloud@v0.2.0
       with:
         project_id: ${{ secrets.CLOUD_RUN_PROJECT_NAME }}
-        service_account_key: ${{ secrets.CLOUD_RUN_SERVICE_ACCOUNT }}
+        service_account_key: ${{ secrets.CLOUD_RUN_SERVICE_ACCOUNT_KEY }}
         service_account_email: ${{ secrets.CLOUD_RUN_SERVICE_ACCOUNT_EMAIL }}
 
     - name: Enable the necessary APIs and enable docker auth
