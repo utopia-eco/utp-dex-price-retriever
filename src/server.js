@@ -27,7 +27,7 @@ app.route('/retrievePrice/:token/:timePeriodInSeconds/:startTime/:endTime')
       if (!results[0]) {
         res.json({ status: "Not Found"});
       } else {
-        res.json(results[0]);
+        res.json(results);
       }
     })
   });
