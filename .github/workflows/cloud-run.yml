@@ -1,4 +1,4 @@
-name: utopia-web-cloud-run
+name: utopia-dex-price-retriever-cloud-run
 
 on:
   push:
