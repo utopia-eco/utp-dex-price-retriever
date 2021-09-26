@@ -5,7 +5,11 @@ const app = express()
 const bodyParser = require('body-parser')
 const connection = require('./databaseClient');
 const pool = require('./databaseClient');
+const cors = require ('cors')
 const port = process.env.PORT
+
+app.use(cors());
+app.options('*', cors())
 
 app.get('/', (req, res) => {
   res.send('Utopia Dex Price Retriever')
