@@ -32,8 +32,6 @@ app.get('/retrievePrice/:token/:timePeriodInSeconds/:startTime/:endTime', async(
         if (!results[0]) {
           res.json({ status: "Not Found"});
         } else {
-          console.log(results);
-
           let bars = []
           let barPeriodStartTime = periodStartTime;
           var oldBar;
@@ -43,7 +41,9 @@ app.get('/retrievePrice/:token/:timePeriodInSeconds/:startTime/:endTime', async(
                 oldBar = updateBar(oldBar, bar);
               } else {
                 barPeriodStartTime = bar.startTime;
-                bars = [...bars, oldBar]
+                if (oldBar != undefined) { // To prevent initializing on a null when the time where the db starts to record and periodStartTime do not match
+                  bars = [...bars, oldBar]
+                }
                 oldBar = bar
               }
               
