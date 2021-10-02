@@ -147,7 +147,7 @@ io.on('connection', (socket) => {
         } else {
           const priceUpdate = `0~Utopia~${fromSymbol}~${toSymbol}~0~0~${results[0].startTime}~${results[0].close}`
           console.log("emitting for room", room, priceUpdate)
-          io.on(room).emit('m', priceUpdate)
+          socket.to(room).emit('m', priceUpdate)
         }
       } catch (error) {
         throw error;
