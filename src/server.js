@@ -2,11 +2,17 @@ require('dotenv').config()
 
 const express = require('express')
 const app = express()
-const bodyParser = require('body-parser')
+const http = require('http');
+const server = http.createServer(app);
+
+const { Server } = require("socket.io");
+const io = new Server(server);
+const port = process.env.PORT
+
 const connection = require('./databaseClient');
 const pool = require('./databaseClient');
 const cors = require ('cors')
-const port = process.env.PORT
+
 
 app.use(cors());
 app.options('*', cors())
@@ -99,3 +105,35 @@ function updateBar(oldBar, newBar) {
   }
   
 }
+
+let rooms = []
+
+io.on('connection', (socket) => {
+  console.log('Connection established', socket.id);
+
+  socket.on('SubAdd', subs => {
+    const [,exchange, fromSymbol, toSymbol] = data.split('~')
+    var room = `${fromSymbol}~${toSymbol}`
+    rooms.push(room)
+    socket.join(room)
+  })
+
+  // Sends event every 5 minute
+  setTimeout(async function sendNewestAddress() {
+    for (const room in rooms) {
+      const [fromSymbol, toSymbol] = data.split('~') // We assume that the token in question is From while BNB is to
+      // Query to retrieve latest bar for symbol
+      const query = "SELECT * FROM " + fromSymbol + "_300 WHERE order by startTime desc limit 1"
+      try {
+        const [results, fields] = await pool.query(query);
+        if (!results[0]) {
+          console.error("Unable to find latest price for", room)
+        } else {
+          io.on(room).emit('m', results[0].close)
+        }
+      } catch (error) {
+        throw error;
+      }
+    }
+  }, 5000)
+});

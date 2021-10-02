@@ -17,6 +17,9 @@ skip_files:
 - .git
 - node_modules
 
+# Required for socket.io to work
+network:
+  session_affinity: true
 
 # [START cloudsql_settings]
 beta_settings:
