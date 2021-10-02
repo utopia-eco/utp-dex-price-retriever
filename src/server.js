@@ -123,8 +123,9 @@ io.on('connection', (socket) => {
   console.log('Connection established', socket.id);
 
   socket.on('SubAdd', data => {
-    console.log(data);
-    for (const channel in data) {
+    console.log("subAdd", data);
+    for (const channel in data.subs) {
+      console.log(channel);
       const [, exchange, fromSymbol, toSymbol] = channel.split('~')
       var room = `${fromSymbol}~${toSymbol}`
       rooms.push(room)
