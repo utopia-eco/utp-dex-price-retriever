@@ -7,6 +7,7 @@ const server = http.createServer(app);
 
 const { Server } = require("socket.io");
 const io = new Server(server);
+
 const port = process.env.PORT
 
 const connection = require('./databaseClient');
@@ -19,6 +20,10 @@ app.options('*', cors())
 
 app.get('/', (req, res) => {
   res.send('Utopia Dex Price Retriever')
+})
+
+app.get('/subscribe', (req, res) => {
+  res.sendFile(__dirname + '/pages/subscribe.html')
 })
 
 // Returns associated limit orders for orderer address
@@ -80,7 +85,7 @@ app.get('/retrievePrice/:token/:timePeriodInSeconds/:startTime/:endTime', async(
 
 app.get('/health', (req, res) => res.send("Healthy"));
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Listening at http://localhost:${port}`)
 })
 
