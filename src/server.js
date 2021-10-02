@@ -138,7 +138,7 @@ io.on('connection', (socket) => {
     for (const room in rooms) {
       const [fromSymbol, toSymbol] = room.split('~') // We assume that the token in question is From while BNB is to
       // Query to retrieve latest bar for symbol
-      const query = "SELECT * FROM " + fromSymbol + "_300 WHERE order by startTime desc limit 1"
+      const query = "SELECT * FROM " + fromSymbol + "_300 order by startTime desc limit 1"
       try {
         const [results, fields] = await pool.query(query);
         if (!results[0]) {
