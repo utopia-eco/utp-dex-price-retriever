@@ -116,11 +116,12 @@ let rooms = []
 io.on('connection', (socket) => {
   console.log('Connection established', socket.id);
 
-  socket.on('SubAdd', subs => {
+  socket.on('SubAdd', data => {
     const [,exchange, fromSymbol, toSymbol] = data.split('~')
     var room = `${fromSymbol}~${toSymbol}`
     rooms.push(room)
     socket.join(room)
+    console.log("room joined", room)
   })
 
   // Sends event every 5 minute
@@ -135,6 +136,7 @@ io.on('connection', (socket) => {
           console.error("Unable to find latest price for", room)
         } else {
           const priceUpdate = `0~PKS~${fromSymbol}~${toSymbol}~0~0~${results[0].startTime}~${results[0].close}`
+          console.log("emitting for room", room, priceUpdate)
           io.on(room).emit('m', priceUpdate)
         }
       } catch (error) {
