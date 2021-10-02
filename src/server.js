@@ -128,7 +128,9 @@ io.on('connection', (socket) => {
       console.log(channel);
       const [, exchange, fromSymbol, toSymbol] = channel.split('~')
       var room = `${fromSymbol}~${toSymbol}`
-      rooms.push(room)
+      if (!rooms.includes(room)) {
+        rooms.push(room)
+      }
       socket.join(room)
       console.log("room joined", room)
     }
@@ -145,7 +147,7 @@ io.on('connection', (socket) => {
         if (!results[0]) {
           console.error("Unable to find latest price for", room)
         } else {
-          const priceUpdate = `0~Utopia~${fromSymbol}~${toSymbol}~0~0~${results[0].startTime}~${results[0].close}`
+          const priceUpdate = `0~Utopia~${fromSymbol}~${toSymbol}~0~0~${results[0].startTime}~0~${results[0].close}`
           console.log("emitting for room", room, priceUpdate)
           socket.to(room).emit('m', priceUpdate)
         }
