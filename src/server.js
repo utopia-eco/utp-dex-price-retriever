@@ -34,6 +34,21 @@ app.get('/subscribe', (req, res) => {
 })
 
 // Returns associated limit orders for orderer address
+app.get('/retrievePrice/:token', async (req, res) => {
+  const query = "SELECT * FROM " + req.params.token + "_300 order by startTime desc limit 1"
+    try {
+      const [results, fields] = await pool.query(query);
+      if (!results[0]) {
+        res.json({ status: "Not Found" });
+      } else {
+        res.json(results[0].close)
+      }
+    } catch (error) {
+      console.error("error", error);
+    }
+})
+
+// Returns associated limit orders for orderer address
 app.get('/retrievePrice/:token/:timePeriodInSeconds/:startTime/:endTime', async (req, res) => {
 
   var period = parseInt(req.params.timePeriodInSeconds)
