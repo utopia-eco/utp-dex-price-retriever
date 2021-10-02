@@ -129,7 +129,8 @@ io.on('connection', (socket) => {
         if (!results[0]) {
           console.error("Unable to find latest price for", room)
         } else {
-          io.on(room).emit('m', results[0].close)
+          const priceUpdate = `0~PKS~${fromSymbol}~${toSymbol}~0~0~${results[0].startTime}~${results[0].close}`
+          io.on(room).emit('m', priceUpdate)
         }
       } catch (error) {
         throw error;
