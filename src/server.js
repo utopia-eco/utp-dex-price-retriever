@@ -124,7 +124,7 @@ io.on('connection', (socket) => {
 
   socket.on('SubAdd', data => {
     console.log("subAdd", data);
-    for (const channel in data.subs) {
+    for (const channel of data.subs) {
       console.log(channel);
       const [, exchange, fromSymbol, toSymbol] = channel.split('~')
       var room = `${fromSymbol}~${toSymbol}`
@@ -136,7 +136,7 @@ io.on('connection', (socket) => {
 
   // Sends event every 5 minute
   setInterval(async function sendNewestAddress() {
-    for (const room in rooms) {
+    for (const room of rooms) {
       const [fromSymbol, toSymbol] = room.split('~') // We assume that the token in question is From while BNB is to
       // Query to retrieve latest bar for symbol
       const query = "SELECT * FROM " + fromSymbol + "_300 order by startTime desc limit 1"
