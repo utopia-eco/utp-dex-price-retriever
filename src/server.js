@@ -115,7 +115,6 @@ io.on('connection', (socket) => {
   socket.on('SubAdd', data => {
     console.log("subAdd", data);
     for (const channel of data.subs) {
-      console.log(channel);
       const [, exchange, fromSymbol, toSymbol] = channel.split('~')
       var priceSub = `${fromSymbol.toLowerCase()}~${toSymbol}`
       if (!priceSubs.includes(priceSub)) {
