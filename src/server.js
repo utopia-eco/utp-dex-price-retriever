@@ -55,8 +55,10 @@ app.get('/retrievePrice/:token/:timePeriodInSeconds/:startTime/:endTime', async 
   var periodStartTime = startTime - (startTime % period)
   var periodEndTime = endTime - (endTime % period) + period - 1
 
+  const token = req.params.token.toLowerCase();
+
   if (period == 900) {
-    const query = "SELECT * FROM " + req.params.token + "_? WHERE startTime BETWEEN ? and ?"
+    const query = "SELECT * FROM " + token + "_? WHERE startTime BETWEEN ? and ?"
     try {
       const [results, fields] = await pool.query(query, [300, periodStartTime, periodEndTime]);
       if (!results[0]) {
@@ -88,7 +90,7 @@ app.get('/retrievePrice/:token/:timePeriodInSeconds/:startTime/:endTime', async 
     }
 
   } else {
-    const query = "SELECT * FROM " + req.params.token + "_? WHERE startTime BETWEEN ? and ?"
+    const query = "SELECT * FROM " + token + "_? WHERE startTime BETWEEN ? and ?"
     try {
       const [results, fields] = await pool.query(query, [period, periodStartTime, periodEndTime]);
       if (!results[0]) {
