@@ -151,7 +151,7 @@ io.on('connection', (socket) => {
   })
 
   // Sends event every 5 minute
-  setInterval(async function sendNewestAddress() {
+  await setInterval(async function sendNewestAddress() {
     for (const room of rooms) {
       const [fromSymbol, toSymbol] = room.split('~') // We assume that the token in question is From while BNB is to
       // Query to retrieve latest bar for symbol
