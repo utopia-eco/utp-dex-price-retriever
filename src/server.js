@@ -21,10 +21,6 @@ const port = process.env.PORT
 const connection = require('./databaseClient');
 const pool = require('./databaseClient');
 
-
-
-
-
 app.get('/', (req, res) => {
   res.send('Utopia Dex Price Retriever')
 })
@@ -35,7 +31,8 @@ app.get('/subscribe', (req, res) => {
 
 // Returns associated limit orders for orderer address
 app.get('/retrievePrice/:token', async (req, res) => {
-  const query = "SELECT * FROM " + req.params.token + "_300 order by startTime desc limit 1"
+  const token = req.params.token.toLowerCase();
+  const query = "SELECT * FROM " + token + "_300 order by startTime desc limit 1"
     try {
       const [results, fields] = await pool.query(query);
       if (!results[0]) {
