@@ -125,5 +125,23 @@ io.on('connection', (socket) => {
     }
   })
   // Sends event every 5 seconds
-  
+  setInterval(async function sendNewestAddress() {
+    for (const room of rooms) {
+      const [fromSymbol, toSymbol] = room.split('~') // We assume that the token in question is From while BNB is to
+      // Query to retrieve latest bar for symbol
+      const query = "SELECT * FROM " + fromSymbol.toLowerCase() + "_300 order by startTime desc limit 1"
+      try {
+        const [results, fields] = await pool.query(query);
+        if (!results[0]) {
+          console.error("Unable to find latest price for", room)
+        } else {
+          const priceUpdate = `0~Utopia~${fromSymbol}~${toSymbol}~0~0~${results[0].startTime}~0~${results[0].close}`
+          console.log("emitting for room", room, priceUpdate)
+          socket.to(room).emit('m', priceUpdate)
+        }
+      } catch (error) {
+        throw error;
+      }
+    }
+  }, 5000)
 });
