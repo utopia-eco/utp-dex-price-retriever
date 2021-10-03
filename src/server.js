@@ -108,36 +108,36 @@ function updateBar(oldBar, newBar) {
     }
   }
 }
-let rooms = []
+
 io.on('connection', (socket) => {
   console.log('Connection established', socket.id);
+  let priceSubs = []
   socket.on('SubAdd', data => {
     console.log("subAdd", data);
     for (const channel of data.subs) {
       console.log(channel);
       const [, exchange, fromSymbol, toSymbol] = channel.split('~')
-      var room = `${fromSymbol.toLowerCase()}~${toSymbol}`
-      if (!rooms.includes(room)) {
-        rooms.push(room)
+      var priceSub = `${fromSymbol.toLowerCase()}~${toSymbol}`
+      if (!priceSubs.includes(priceSub)) {
+        priceSubs.push(priceSub)
       }
-      socket.join(room)
-      console.log("room joined", room)
+      console.log("price subscribed", priceSub)
     }
   })
   // Sends event every 5 seconds
   setInterval(async function sendNewestAddress() {
-    for (const room of rooms) {
-      const [fromSymbol, toSymbol] = room.split('~') // We assume that the token in question is From while BNB is to
+    for (const priceSub of priceSubs) {
+      const [fromSymbol, toSymbol] = priceSub.split('~') // We assume that the token in question is From while BNB is to
       // Query to retrieve latest bar for symbol
       const query = "SELECT * FROM " + fromSymbol.toLowerCase() + "_300 order by startTime desc limit 1"
       try {
         const [results, fields] = await pool.query(query);
         if (!results[0]) {
-          console.error("Unable to find latest price for", room)
+          console.error("Unable to find latest price for", priceSub)
         } else {
           const priceUpdate = `0~Utopia~${fromSymbol}~${toSymbol}~0~0~${results[0].startTime}~0~${results[0].close}`
-          console.log("emitting for room", room, priceUpdate)
-          socket.to(room).emit('m', priceUpdate)
+          console.log("emitting for connection", socket.id, priceUpdate)
+          socket.emit('m', priceUpdate)
         }
       } catch (error) {
         throw error;
