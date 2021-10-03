@@ -157,8 +157,9 @@ io.on('connection', (socket) => {
     }
   })
 
-  // Sends event every 5 minute
-  await setInterval(async function sendNewestAddress() {
+  // Sends event every 5 seconds
+  setInterval(async () => {
+    console.log("rooms", rooms);
     for (const room of rooms) {
       const [fromSymbol, toSymbol] = room.split('~') // We assume that the token in question is From while BNB is to
       // Query to retrieve latest bar for symbol
@@ -176,5 +177,11 @@ io.on('connection', (socket) => {
         throw error;
       }
     }
+    console.log("queried", Date.now())
   }, 5000)
 });
+
+async function emitWithDelay(ms) {
+  // return await for better async stack trace support in case of errors.
+  return await new Promise(resolve => setTimeout(resolve, ms));
+}
