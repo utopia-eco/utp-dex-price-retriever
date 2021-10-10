@@ -134,7 +134,7 @@ io.on('connection', (socket) => {
         if (!results[0]) {
           console.error("Unable to find latest price for", priceSub)
         } else {
-          const priceUpdate = `0~Utopia~${fromSymbol}~${toSymbol}~0~0~${results[0].startTime}~0~${results[0].close}`
+          const priceUpdate = `0~Utopia~${fromSymbol}~${toSymbol}~0~0~${results[0].startTime}~0~${results[0].close}~${results[0].open}~${results[0].low}~${results[0].high}`
           console.log("emitting for connection", socket.id, priceUpdate)
           socket.emit('m', priceUpdate)
         }
