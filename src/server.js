@@ -1,6 +1,7 @@
 require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
+const axios = require('axios')
 const app = express()
 app.use(cors());
 app.options('*', cors())
@@ -35,6 +36,55 @@ app.get('/retrievePrice/:token', async (req, res) => {
       console.error("error", error);
     }
 })
+
+// Returns associated price from bitquery
+app.get('/retrievePriceExternal/:token', async (req, res) => {
+  const token = req.params.token.toLowerCase();
+  try {
+    const response2 = await axios.post(
+      'https://graphql.bitquery.io',
+        {
+            query: `{
+              ethereum(network: bsc) {
+                dexTrades(
+                  baseCurrency: {is: "0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82"}
+                  quoteCurrency: {is: "${token}"}
+                  options: {desc: ["block.height", "transaction.index"], limit: 1}
+                ) {
+                  block {
+                    height
+                    timestamp {
+                      time(format: "%Y-%m-%d %H:%M:%S")
+                    }
+                  }
+                  transaction {
+                    index
+                  }
+                  baseCurrency {
+                    symbol
+                  }
+                  quoteCurrency {
+                    symbol
+                  }
+                  quotePrice
+                }
+              }
+            }`,
+        },
+        {
+            headers: {
+                'Content-Type': 'application/json',
+                'X-API-KEY': 'BQYmsfh6zyChKKHtKogwvrjXLw8AJkdP',
+            },
+        })
+    res.json(response2.data.data.ethereum.dexTrades[0].quotePrice);
+  } catch (err) {
+    console.error("Problem retrieving price from bitquery");
+    console.error(err);
+    res.json("Error retrieving price");
+  }
+})
+
 // Returns associated limit orders for orderer address
 app.get('/retrievePrice/:token/:timePeriodInSeconds/:startTime/:endTime', async (req, res) => {
   var period = parseInt(req.params.timePeriodInSeconds)
