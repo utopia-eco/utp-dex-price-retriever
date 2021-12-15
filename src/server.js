@@ -2,6 +2,7 @@ require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
 const axios = require('axios')
+const dateFns = require('date-fns')
 const app = express()
 app.use(cors());
 app.options('*', cors())
@@ -41,14 +42,14 @@ app.get('/retrievePrice/:token', async (req, res) => {
 app.get('/retrievePriceExternal/:token', async (req, res) => {
   const token = req.params.token.toLowerCase();
   try {
-    const response2 = await axios.post(
+    const response = await axios.post(
       'https://graphql.bitquery.io',
         {
             query: `{
               ethereum(network: bsc) {
                 dexTrades(
-                  baseCurrency: {is: "0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82"}
-                  quoteCurrency: {is: "${token}"}
+                  quoteCurrency: {is: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"}
+                  baseCurrency: {is: "${token}"}
                   options: {desc: ["block.height", "transaction.index"], limit: 1}
                 ) {
                   block {
@@ -77,7 +78,7 @@ app.get('/retrievePriceExternal/:token', async (req, res) => {
                 'X-API-KEY': 'BQYmsfh6zyChKKHtKogwvrjXLw8AJkdP',
             },
         })
-    res.json(response2.data.data.ethereum.dexTrades[0].quotePrice);
+    res.json(response.data.data.ethereum.dexTrades[0].quotePrice);
   } catch (err) {
     console.error("Problem retrieving price from bitquery");
     console.error(err);
@@ -178,18 +179,85 @@ io.on('connection', (socket) => {
     for (const priceSub of priceSubs) {
       const [fromSymbol, toSymbol] = priceSub.split('~') // We assume that the token in question is From while BNB is to
       // Query to retrieve latest bar for symbol
-      const query = "SELECT * FROM " + fromSymbol.toLowerCase() + "_300 order by startTime desc limit 1"
+      // const query = "SELECT * FROM " + fromSymbol.toLowerCase() + "_300 order by startTime desc limit 1"
+      const queryStartTime = Math.floor(Date.now() / 1000) - 5;
+      let baseCurrency;
+      if (fromSymbol == "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c") {
+        baseCurrency = toSymbol;
+      } else {
+        baseCurrency = fromSymbol;
+      }
+
       try {
-        const [results, fields] = await pool.query(query);
-        if (!results[0]) {
-          console.error("Unable to find latest price for", priceSub)
-        } else {
-          const priceUpdate = `0~Utopia~${fromSymbol}~${toSymbol}~0~0~${results[0].startTime}~0~${results[0].close}`
-          console.log("emitting for connection", socket.id, priceUpdate)
-          socket.emit('m', priceUpdate)
-        }
-      } catch (error) {
-        throw error;
+        const response = await axios.post(
+          'https://graphql.bitquery.io',
+            {
+                query: `{
+                  ethereum(network: bsc) {
+                    dexTrades(
+                      quoteCurrency: {is: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"}
+                      baseCurrency: {is: "${token}"}
+                      options: {desc: ["block.height", "transaction.index"], limit: 1}
+                    ) {
+                      block {
+                        height
+                        timestamp {
+                          time(format: "%Y-%m-%d %H:%M:%S")
+                        }
+                      }
+                      transaction {
+                        index
+                      }
+                      baseCurrency {
+                        symbol
+                      }
+                      quoteCurrency {
+                        symbol
+                      }
+                      quotePrice
+                    }
+                  }
+                }`,
+            },
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-API-KEY': 'BQYmsfh6zyChKKHtKogwvrjXLw8AJkdP',
+                },
+            })
+        const currentQuotePrice = response.data.data.ethereum.dexTrades[0].quotePrice;
+
+        const response2 = await axios.post(
+          'https://graphql.bitquery.io',
+            {
+                query: `{{
+                  ethereum(network: bsc) {
+                    dexTrades(
+                      exchangeName: {is: "Pancake"}
+                      baseCurrency: {is: "${baseCurrency}"}
+                      time: {after: "${dateFns.formatISO(queryStartTime)}}
+                    ) {
+                      count
+                      tradeAmount(in: USD)
+                    }
+                  }
+                }`,
+            },
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-API-KEY': 'BQYmsfh6zyChKKHtKogwvrjXLw8AJkdP',
+                },
+            })
+        volume = (response2.data.data.ethereum.dexTrades[0].tradeAmount);
+
+        const priceUpdate = `0~Utopia~${fromSymbol}~${toSymbol}~0~0~${queryStartTime}~0~${currentQuotePrice}~${tradeAmount}`
+        console.log("emitting for connection", socket.id, priceUpdate)
+        socket.emit('m', priceUpdate)
+      } catch (err) {
+        console.error("Problem retrieving price from bitquery");
+        console.error(err);
+        res.json("Error retrieving price");
       }
     }
   }, 5000)
