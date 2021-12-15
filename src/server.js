@@ -219,8 +219,6 @@ io.on('connection', (socket) => {
             })
         const currentQuotePrice = response.data.data.ethereum.dexTrades[0].quotePrice;
 
-        
-        const queryStartTime = Math.floor(Date.now() / 1000) - 5;
         let baseCurrency;
         if (fromSymbol == "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c") {
           baseCurrency = toSymbol;
