@@ -227,7 +227,7 @@ io.on('connection', (socket) => {
         }
 
         const queryStartTime = dateFns.formatISO(Date.now() - (1 * 60 * 1000));
-        const response = await axios.post(
+        const response2 = await axios.post(
           'https://graphql.bitquery.io',
             {
                 query: `{
