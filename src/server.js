@@ -31,7 +31,7 @@ app.get('/retrievePrice/:token', async (req, res) => {
       if (!results[0]) {
         res.json({ status: "Not Found" });
       } else {
-        res.json(results[0].close)
+        gjson(results[0].close)
       }
     } catch (error) {
       console.error("error", error);
@@ -184,7 +184,7 @@ io.on('connection', (socket) => {
         const response = await axios.post(
           'https://graphql.bitquery.io',
             {
-                query: `{ ethereum(network: bsc) { dexTrades( baseCurrency: {is: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"} quoteCurrency: {is: "${token}"} options: {desc: ["block.height", "transaction.index"], limit: 1} ) { block { height timestamp { time(format: "%Y-%m-%d %H:%M:%S") } } transaction { index } baseCurrency { symbol } quoteCurrency { symbol } quotePrice } } }`,
+                query: `{ ethereum(network: bsc) { dexTrades( baseCurrency: {is: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"} quoteCurrency: {is: "${fromSymbol}"} options: {desc: ["block.height", "transaction.index"], limit: 1} ) { block { height timestamp { time(format: "%Y-%m-%d %H:%M:%S") } } transaction { index } baseCurrency { symbol } quoteCurrency { symbol } quotePrice } } }`,
             },
             {
                 headers: {
