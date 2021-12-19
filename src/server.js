@@ -176,7 +176,7 @@ io.on('connection', (socket) => {
     }
   })
   // Sends event every 5 seconds
-  setInterval(async function sendNewestAddress() {
+  const intervalId = setInterval(async function sendNewestAddress() {
     for (const priceSub of priceSubs) {
       const [fromSymbol, toSymbol] = priceSub.split('~') // We assume that the token in question is From while BNB is to
       // Query to retrieve latest bar for symbol
