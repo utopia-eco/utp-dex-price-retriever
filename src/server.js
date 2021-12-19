@@ -221,7 +221,7 @@ io.on('connection', (socket) => {
       } catch (err) {
         console.error("Problem retrieving price from bitquery");
         console.error(err);
-        res.json("Error retrieving price");
+        socket.emit('error', err)
       }
     }
   }, 5000)
