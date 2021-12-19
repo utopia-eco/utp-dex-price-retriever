@@ -1,5 +1,5 @@
 # [START app_yaml]
-runtime: nodejs15
+runtime: nodejs14
 env: flex
 service: price-retriever
 
