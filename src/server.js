@@ -184,32 +184,7 @@ io.on('connection', (socket) => {
         const response = await axios.post(
           'https://graphql.bitquery.io',
             {
-                query: `{
-                  ethereum(network: bsc) {
-                    dexTrades(
-                      baseCurrency: {is: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"}
-                      quoteCurrency: {is: "${token}"}
-                      options: {desc: ["block.height", "transaction.index"], limit: 1}
-                    ) {
-                      block {
-                        height
-                        timestamp {
-                          time(format: "%Y-%m-%d %H:%M:%S")
-                        }
-                      }
-                      transaction {
-                        index
-                      }
-                      baseCurrency {
-                        symbol
-                      }
-                      quoteCurrency {
-                        symbol
-                      }
-                      quotePrice
-                    }
-                  }
-                }`,
+                query: `{ ethereum(network: bsc) { dexTrades( baseCurrency: {is: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"} quoteCurrency: {is: "${token}"} options: {desc: ["block.height", "transaction.index"], limit: 1} ) { block { height timestamp { time(format: "%Y-%m-%d %H:%M:%S") } } transaction { index } baseCurrency { symbol } quoteCurrency { symbol } quotePrice } } }`,
             },
             {
                 headers: {
@@ -230,18 +205,7 @@ io.on('connection', (socket) => {
         const response2 = await axios.post(
           'https://graphql.bitquery.io',
             {
-                query: `{
-                  ethereum(network: bsc) {
-                    dexTrades(
-                      exchangeName: {is: "Pancake"}
-                      baseCurrency: {is: "${baseCurrency}"}
-                      time: {after: "${queryStartTime}"}
-                    ) {
-                      count
-                      tradeAmount(in: USD)
-                    }
-                  }
-                }`,
+                query: `{ ethereum(network: bsc) { dexTrades( exchangeName: {is: "Pancake"} baseCurrency: {is: "${baseCurrency}"} time: {after: "${queryStartTime}"} ) { count tradeAmount(in: USD) } } }`,
             },
             {
                 headers: {
