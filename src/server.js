@@ -78,7 +78,7 @@ app.get('/retrievePriceExternal/:token', async (req, res) => {
                 'X-API-KEY': 'BQYmsfh6zyChKKHtKogwvrjXLw8AJkdP',
             },
         })
-    res.json(response.data.data.ethereum.dexTrades[0].quotePrice);
+    res.json(response?.data?.data?.ethereum?.dexTrades?.[0]?.quotePrice);
   } catch (err) {
     console.error("Problem retrieving price from bitquery");
     console.error(err);
@@ -213,9 +213,9 @@ io.on('connection', (socket) => {
                     'X-API-KEY': 'BQYmsfh6zyChKKHtKogwvrjXLw8AJkdP',
                 },
             })
-        volume = response2?.data?.data?.ethereum?.dexTrades?.[0]?.tradeAmount;
+        const volume = response2?.data?.data?.ethereum?.dexTrades?.[0]?.tradeAmount;
 
-        const priceUpdate = `0~Utopia~${fromSymbol}~${toSymbol}~0~0~${queryStartTime}~${tradeAmount}~${currentQuotePrice}~0~0~0`
+        const priceUpdate = `0~Utopia~${fromSymbol}~${toSymbol}~0~0~${queryStartTime}~${volume}~${currentQuotePrice}~0~0~0`
         console.log("emitting for connection", socket.id, priceUpdate)
         socket.emit('m', priceUpdate)
       } catch (err) {
